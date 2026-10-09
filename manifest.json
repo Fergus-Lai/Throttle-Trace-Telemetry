@@ -1,0 +1,7 @@
+{
+  "name": "Telemetry Export",
+  "namespace": "Fergus",
+  "version_number": "1.0.0",
+  "description": "Export Telemetry in UDP Format",
+  "website_url": "https://github.com/Fergus-Lai/Throttle-Trace-Telemetry"
+}
