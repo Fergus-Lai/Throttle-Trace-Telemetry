@@ -1,7 +1,23 @@
 {
-  "name": "Telemetry Export",
+  "name": "TelemetryExport",
   "namespace": "Fergus",
   "version_number": "1.0.0",
   "description": "Export Telemetry in UDP Format",
-  "website_url": "https://github.com/Fergus-Lai/Throttle-Trace-Telemetry"
+  "website_url": "https://github.com/Fergus-Lai/Throttle-Trace-Telemetry",
+  "dependencies": [
+    "Add IDs of other mods here, if your mod needs them to work"
+  ],
+  "extra": {
+    "godot": {
+      "authors": ["AuthorName"],
+      "tags": ["tag1", "tag2"],
+      "description_rich": "",
+      "optional_dependencies": [],
+      "load_before": [""],
+      "incompatibilities": [],
+      "compatible_mod_loader_version": ["6.2.0"],
+      "compatible_game_version": ["1.2.3"],
+      "config_schema": {}
+    }
+  }
 }
