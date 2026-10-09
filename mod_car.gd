@@ -39,8 +39,8 @@ extends Resource
 static func from_car(car: Node, pps_to_kph: float) -> CarData:
 	var data = CarData.new()
 	
-	data.speed = pps_to_kph *car.get("speed")
-	data.prev_speed = pps_to_kph *car.get("previous_speed")
+	data.speed = pps_to_kph * car.get("speed")
+	data.prev_speed = pps_to_kph * car.get("previous_speed")
 	data.wheel_spin = car.get("wheel_spin")
 	data.traction = car.get("traction")
 	data.slip_angle = car.get("slip_angle")
@@ -80,6 +80,27 @@ func _to_string() -> String:
 		"  Condition:   Car: %.1f%% | F-Wing: %.1f%% | R-Wing: %.1f%%\n" % [car_condition * 100, front_wing_condition * 100, rear_wing_condition * 100] +
 		"  Lap:         Lap Count: %.0f | Lap Progress: %.2f%%\n" % [lap_count, lap_progress * 100] +
 		"  Track State: In Pit: %s | Track State: %s\n" % [in_pit_string, track_state] +
-		"  Input:       Throttle: %.0f% | Brake: %.0f%\n" % [throttle_input * 100, brake_input * 100]+
+		"  Input:       Throttle: %.0f% | Brake: %.0f%\n" % [throttle_input * 100, brake_input * 100] +
 		"  Current Lap: %s" % [current_lap._to_string()]
 	)
+
+func to_dict() -> Dictionary:
+	return {
+		"speed": speed,
+		"prev_speed": prev_speed,
+		"wheel_spin": wheel_spin,
+		"traction": traction,
+		"slip_angle": slip_angle,
+		"car_condition": car_condition,
+		"front_wing_condition": front_wing_condition,
+		"rear_wing_condition": rear_wing_condition,
+		"rpm": rpm,
+		"gear": gear,
+		"max_rpm": max_rpm,
+		"lap_count": lap_count,
+		"current_lap": current_lap.to_dict(),
+		"in_pit": in_pit,
+		"track_state": track_state,
+		"brake_input": brake_input,
+		"throttle_input": throttle_input,
+	}

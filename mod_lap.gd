@@ -1,11 +1,11 @@
 class_name LapData
-extends Resource 
+extends Resource
 
-enum Compound{
-	Hard, 
-	Medium, 
-	Soft, 
-	Wet, 
+enum Compound {
+	Hard,
+	Medium,
+	Soft,
+	Wet,
 	Intermediate
 }
 
@@ -64,3 +64,19 @@ func _to_string() -> String:
 		str(sector_times),
 		flags_str
 	]
+
+func _to_dict() -> Dictionary:
+	return {
+		"start_session_time": start_session_time,
+		"end_session_time": end_session_time,
+		"start_position_index": start_position_index,
+		"position_index": position_index,
+		"out_lap": out_lap,
+		"in_lap": in_lap,
+		"delta_to_leader": delta_to_leader,
+		"condition": condition,
+		"compound": compound,
+		"tire_condition": tire_condition,
+		"sector_times": sector_times,
+		"invalid": invalid,
+	}

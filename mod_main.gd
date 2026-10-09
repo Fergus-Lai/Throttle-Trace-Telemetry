@@ -1,16 +1,22 @@
 extends Node
 
-enum SessionState{
-	Prepare, 
-	WaitingForHost, 
-	Countdown, 
-	Active, 
+enum SessionState {
+	Prepare,
+	WaitingForHost,
+	Countdown,
+	Active,
 	Finished
 }
 
 
-
 const LOG_NAME := "TelemetryMod:Main"
+
+# TODO: Configurable
+const UDP_HOST := "127.0.0.1"
+const UDP_PORT := 5005
+
+var udp := PacketPeerUDP.new()
+var udp_ready := false
 
 var track_data: Node = null
 var player: Node = null
@@ -23,6 +29,7 @@ var pps_to_kph: float
 
 func _ready() -> void:
 	ModLoaderLog.info("Running Mod", LOG_NAME)
+	_setup_udp()
 	_check_for_game_data_loop()
 
 func _check_for_game_data_loop() -> void:
@@ -82,8 +89,34 @@ func _send_session_data() -> void:
 
 	
 	var playerCar = CarData.from_car(player, pps_to_kph)
+	_send_telemetry(
+		{
+			"playerId": playerCar.id,
+			"cars": [playerCar],
+		}
+	)
 	ModLoaderLog.info(playerCar._to_string(), LOG_NAME)
 
 	await get_tree().process_frame
 	_send_session_data()
 	return
+
+func _setup_udp() -> void:
+	var err := udp.set_dest_address(UDP_HOST, UDP_PORT)
+
+	if err != OK:
+		ModLoaderLog.error("Failed to configure UDP: %s" % err, LOG_NAME)
+		return
+
+	udp_ready = true
+	ModLoaderLog.info("UDP sender ready", LOG_NAME)
+
+func _send_telemetry(data: Dictionary) -> void:
+	if not udp_ready:
+		return
+
+	var packet := JSON.stringify(data).to_utf8_buffer()
+	var err := udp.put_packet(packet)
+
+	if err != OK:
+		ModLoaderLog.error("UDP send failed: %s" % err, LOG_NAME)
