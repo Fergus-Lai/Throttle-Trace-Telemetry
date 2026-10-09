@@ -77,8 +77,8 @@ func _to_string() -> String:
 		"  Speed:       %.2f (Prev: %.2f)\n" % [speed, prev_speed] +
 		"  Engine:      Gears: %d | RPM: %.0f / %.0f\n" % [gear, rpm, max_rpm] +
 		"  Physics:     WheelSpin: %.2f | Traction: %.2f | SlipAngle: %.2f\n" % [wheel_spin, traction, slip_angle] +
-		"  Condition:   Car: %.1f%% | F-Wing: %.1f%% | R-Wing: %.1f%%\n" % [car_condition, front_wing_condition, rear_wing_condition] +
-		"  Lap:         Lap Count: %.0f | Lap Progress: %.2f%%\n" % [lap_count, lap_progress] +
+		"  Condition:   Car: %.1f%% | F-Wing: %.1f%% | R-Wing: %.1f%%\n" % [car_condition * 100, front_wing_condition * 100, rear_wing_condition * 100] +
+		"  Lap:         Lap Count: %.0f | Lap Progress: %.2f%%\n" % [lap_count, lap_progress * 100] +
 		"  Track State: In Pit: %s | Track State: %s\n" % [in_pit_string, track_state] +
 		"  Input:       Throttle: %.0f% | Brake: %.0f%\n" % [throttle_input * 100, brake_input * 100]+
 		"  Current Lap: %s" % [current_lap._to_string()]
