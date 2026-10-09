@@ -38,6 +38,8 @@ extends Resource
 
 static func from_car(car: Node, pps_to_kph: float) -> CarData:
 	var data = CarData.new()
+
+	data.id = car.get("id")
 	
 	data.speed = pps_to_kph * car.get("speed")
 	data.prev_speed = pps_to_kph * car.get("previous_speed")
@@ -86,6 +88,7 @@ func _to_string() -> String:
 
 func to_dict() -> Dictionary:
 	return {
+		"id": id,
 		"speed": speed,
 		"prev_speed": prev_speed,
 		"wheel_spin": wheel_spin,
