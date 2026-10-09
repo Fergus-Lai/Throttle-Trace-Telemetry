@@ -11,8 +11,8 @@ extends Resource
 
 # TODO: Player
 # @export var steering
-# @export var throttle_input
-# @export var brake_input
+@export var throttle_input: float
+@export var brake_input: float
 # @export var steering_input
 
 # @export var world_pos
@@ -62,6 +62,10 @@ static func from_car(car: Node, pps_to_kph: float) -> CarData:
 	data.in_pit = car.get("is_in_pit_lane")
 	data.track_state = car.get("track_state")
 
+	var inputs = car.get("inputs")
+	data.brake_input = inputs["brake"]
+	data.throttle_input = inputs["throttle"]
+
 
 	return data
 
@@ -76,5 +80,6 @@ func _to_string() -> String:
 		"  Condition:   Car: %.1f%% | F-Wing: %.1f%% | R-Wing: %.1f%%\n" % [car_condition, front_wing_condition, rear_wing_condition] +
 		"  Lap:         Lap Count: %.0f | Lap Progress: %.2f%%\n" % [lap_count, lap_progress] +
 		"  Track State: In Pit: %s | Track State: %s\n" % [in_pit_string, track_state] +
+		"  Input:       Throttle: %.0f% | Brake: %.0f%\n" % [throttle_input * 100, brake_input * 100]+
 		"  Current Lap: %s" % [current_lap._to_string()]
 	)
