@@ -81,7 +81,7 @@ func _send_session_data() -> void:
 		return
 
 	
-	var playerCar = CarData.from_car(player)
+	var playerCar = CarData.from_car(player, pps_to_kph)
 	ModLoaderLog.info(playerCar._to_string(), LOG_NAME)
 
 	await get_tree().process_frame
