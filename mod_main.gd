@@ -20,6 +20,7 @@ var running: bool = false
 var session_state: SessionState = SessionState.Prepare
 var pps_to_kph: float
 
+
 func _ready() -> void:
 	ModLoaderLog.info("Running Mod", LOG_NAME)
 	_check_for_game_data_loop()
@@ -78,8 +79,10 @@ func _send_session_data() -> void:
 	if session_state != SessionState.Active:
 		ModLoaderLog.info("Session Ended", LOG_NAME)
 		return
-	player = track_data.get("player")
-	ModLoaderLog.info("Player Speed: %s" % [pps_to_kph * player.speed], LOG_NAME)
+
+	
+	var playerCar = CarData.from_car(player)
+	ModLoaderLog.info(playerCar._to_string(), LOG_NAME)
 
 	await get_tree().process_frame
 	_send_session_data()
