@@ -21,6 +21,7 @@ var udp_ready := false
 var track_data: Node = null
 var player: Node = null
 var params: RefCounted = null
+var cars: Array = []
 var teams: Array = []
 var running: bool = false
 var session_state: SessionState = SessionState.Prepare
@@ -47,12 +48,13 @@ func _check_for_game_data_loop() -> void:
 func _check_telemetry_ready_loop() -> void:
 	params = track_data.get("params")
 	player = track_data.get("player")
+	cars = track_data.get("cars")
 	pps_to_kph = track_data.get("_pps_to_kph")
 	var raw_teams = track_data.get("teams")
 	if raw_teams is Array:
 		teams.assign(raw_teams)
 		
-	if params == null or player == null or len(teams) == 0 or pps_to_kph == null:
+	if params == null or player == null or len(teams) == 0 or len(cars) == 0 or pps_to_kph == null:
 		await get_tree().process_frame
 		_check_telemetry_ready_loop()
 		return
@@ -89,10 +91,14 @@ func _send_session_data() -> void:
 
 	
 	var playerCar = CarData.from_car(player, pps_to_kph)
+	var cars_data: Dictionary[String, CarData] = {}
+	for car in cars:
+		var current_car = CarData.from_car(car, pps_to_kph)
+		cars_data[current_car.id] = current_car
 	_send_telemetry(
 		{
 			"playerId": playerCar.id,
-			"cars": [playerCar],
+			"cars": cars_data,
 		}
 	)
 	ModLoaderLog.info(playerCar._to_string(), LOG_NAME)
