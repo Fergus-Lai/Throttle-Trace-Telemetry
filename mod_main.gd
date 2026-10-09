@@ -1,30 +1,25 @@
 extends Node
 
+const LOG_NAME := "TelemetryMod:Main"
 
-const GODOTMODDING_EXAMPLEMOD_DIR := "GodotModding-ExampleMod"
-const GODOTMODDING_EXAMPLEMOD_LOG_NAME := "GodotModding-ExampleMod:Main"
-
-var mod_dir_path := ""
-var extensions_dir_path := ""
-var translations_dir_path := ""
-
-func _init() -> void:
-    mod_dir_path = ModLoaderMod.get_unpacked_dir().path_join(GODOTMODDING_EXAMPLEMOD_DIR)
-    # Add extensions
-    install_script_extensions()
-    # Add translations
-    add_translations()
-
-
-func install_script_extensions() -> void:
-    extensions_dir_path = mod_dir_path.path_join("extensions")
-    # ModLoaderMod.install_script_extension(extensions_dir_path.path_join(...))
-
-
-func add_translations() -> void:
-    translations_dir_path = mod_dir_path.path_join("translations")
-    # ModLoaderMod.add_translation(translations_dir_path.path_join(...))
-
+var track_data: Node = null
+var player: Node = null
 
 func _ready() -> void:
-    ModLoaderLog.info("Ready!", GODOTMODDING_EXAMPLEMOD_LOG_NAME)
+	ModLoaderLog.info("Running Mod", LOG_NAME)
+	find_game_data()
+
+func find_game_data() -> void:
+	while track_data == null:
+		track_data = get_node_or_null("/root/Main/GameLayer/Track")
+
+		if track_data == null:
+			await get_tree().create_timer(0.5).timeout
+
+	ModLoaderLog.info("Game data node found!", LOG_NAME)
+	start_telemetry()
+
+func start_telemetry() -> void:
+	# Read the live data after the node exists.
+	player = track_data.get("player")
+	ModLoaderLog.info(str(player.track_position_index), LOG_NAME)
