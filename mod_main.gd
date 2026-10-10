@@ -82,6 +82,8 @@ func _send_session_data() -> void:
 	for car in cars:
 		var current_car = CarData.from_car(car, pps_to_kph)
 		cars_data[current_car.id] = current_car.to_dict()
+
+	var session_time = track_data.get("session_time")
 	_send_telemetry(
 		{
 			"Version": 1,
@@ -89,6 +91,7 @@ func _send_session_data() -> void:
 			"SessionState": session_state,
 			"PlayerID": playerCar.id,
 			"Cars": cars_data,
+			"SessionTime": session_time
 		}
 	)
 
