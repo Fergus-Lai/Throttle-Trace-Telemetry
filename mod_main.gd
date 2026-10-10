@@ -25,8 +25,9 @@ var params: RefCounted = null
 var ordered_cars: Array = []
 var teams: Array = []
 var running: bool = false
-var pps_to_kph: float
 var track_length: float
+var pps_to_kph: float
+var pixel_to_meter: float
 
 var _last_state = null
 var _session_has_started = false
@@ -54,7 +55,7 @@ func _check_telemetry_ready_loop() -> void:
 	player = track_data.get("player")
 	ordered_cars = track_data.get("ordered_cars")
 	pps_to_kph = track_data.get("_pps_to_kph")
-	var pixel_to_meter = track_data.get("_")
+	pixel_to_meter = track_data.get("_pixels_to_meters")
 	var raw_teams = track_data.get("teams")
 	var surface: Node = track_data.get("surface") as Node
 	
@@ -112,7 +113,7 @@ func _send_session_data() -> void:
 	
 	var cars_data: Dictionary[String, Dictionary] = {}
 	for i in ordered_cars.size():
-		var current_car = CarData.from_car(ordered_cars[i], i + 1, pps_to_kph)
+		var current_car = CarData.from_car(ordered_cars[i], i + 1, pps_to_kph, pixel_to_meter)
 		cars_data[current_car.id] = current_car.to_dict()
 
 	var track_positions = track_data.get("cars_sorted_by_track_position")

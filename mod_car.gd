@@ -31,7 +31,6 @@ extends Resource
 @export var current_lap: LapData
 @export var last_lap: LapData
 @export var lap_count: int
-@export var lap_progress: float
 @export var track_state: String
 @export var in_pit: bool
 
@@ -41,9 +40,13 @@ extends Resource
 @export var name: String
 @export var number: int
 
+@export var distance_round_track: float;
+@export var world_pos: Vector3;
+@export var orientation: Vector3;
+
 # @export var brake temp
 
-static func from_car(car: Node, p: int, pps_to_kph: float) -> CarData:
+static func from_car(car: Node, p: int, pps_to_kph: float, pixel_to_meter: float) -> CarData:
 	var data = CarData.new()
 
 	data.id = car.get("id")
@@ -56,12 +59,15 @@ static func from_car(car: Node, p: int, pps_to_kph: float) -> CarData:
 	data.car_condition = car.get("condition")
 	data.front_wing_condition = car.get("front_wing_condition")
 	data.rear_wing_condition = car.get("rear_wing_condition")
+	data.distance_round_track = car.get("lap_progress") * pixel_to_meter
+	data.world_pos = car.get("global_position")
+	data.orientation = car.get("global_rotation")
 
 
 	var pu = car.get("power_unit")
 
 	data.rpm = pu.get("rpm")
-	data.gear = pu.get("current_gear")
+	data.gear = pu.get("current_gear") + 1
 	data.max_rpm = pu.get("rpm_maximum")
 
 	var laps: Array = car.get("laps")
@@ -98,7 +104,7 @@ func _to_string() -> String:
 		"  Engine:      Gears: %d | RPM: %.0f / %.0f\n" % [gear, rpm, max_rpm] +
 		"  Physics:     WheelSpin: %.2f | Traction: %.2f | SlipAngle: %.2f\n" % [wheel_spin, traction, slip_angle] +
 		"  Condition:   Car: %.1f%% | F-Wing: %.1f%% | R-Wing: %.1f%%\n" % [car_condition * 100, front_wing_condition * 100, rear_wing_condition * 100] +
-		"  Lap:         Lap Count: %.0f | Lap Progress: %.2f%%\n" % [lap_count, lap_progress * 100] +
+		"  Lap:         Lap Count: %.0f\n" % [lap_count] +
 		"  Track State: In Pit: %s | Track State: %s\n" % [in_pit_string, track_state] +
 		"  Input:       Throttle: %.0f% | Brake: %.0f%\n" % [throttle_input * 100, brake_input * 100] +
 		"  Current Lap: %s" % [current_lap._to_string()]
@@ -125,5 +131,8 @@ func to_dict() -> Dictionary:
 		"BrakeInput": brake_input,
 		"ThrottleInput": throttle_input,
 		"Name": name,
-		"Number": number
+		"Number": number,
+		"DistanceRoundTrack": distance_round_track,
+		"WorldPosition": [world_pos.x, world_pos.y, world_pos.z],
+		"Orientation": [orientation.x, orientation.y, orientation.z],
 	}
