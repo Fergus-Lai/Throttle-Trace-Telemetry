@@ -35,9 +35,15 @@ extends Resource
 @export var track_state: String
 @export var in_pit: bool
 
+@export var position: int
+@export var track_position: int
+
+@export var name: String
+@export var number: int
+
 # @export var brake temp
 
-static func from_car(car: Node, pps_to_kph: float) -> CarData:
+static func from_car(car: Node, p: int, pps_to_kph: float) -> CarData:
 	var data = CarData.new()
 
 	data.id = car.get("id")
@@ -74,6 +80,12 @@ static func from_car(car: Node, pps_to_kph: float) -> CarData:
 	data.brake_input = inputs["brake"]
 	data.throttle_input = inputs["throttle"]
 
+	data.position = p
+
+	var driver = car.get("driver")
+	data.name = driver.get("first_name") + " " + driver.get("last_name")
+	data.number = driver.get("number")
+
 
 	return data
 
@@ -94,22 +106,24 @@ func _to_string() -> String:
 
 func to_dict() -> Dictionary:
 	return {
-		"id": id,
-		"speed": speed,
-		"prev_speed": prev_speed,
-		"wheel_spin": wheel_spin,
-		"traction": traction,
-		"slip_angle": slip_angle,
-		"car_condition": car_condition,
-		"front_wing_condition": front_wing_condition,
-		"rear_wing_condition": rear_wing_condition,
-		"rpm": rpm,
-		"gear": gear,
-		"max_rpm": max_rpm,
-		"lap_count": lap_count,
-		"current_lap": current_lap.to_dict(),
-		"in_pit": in_pit,
-		"track_state": track_state,
-		"brake_input": brake_input,
-		"throttle_input": throttle_input,
+		"Id": id,
+		"Speed": speed,
+		"PrevSpeed": prev_speed,
+		"WheelSpin": wheel_spin,
+		"Traction": traction,
+		"SlipAngle": slip_angle,
+		"CarCondition": car_condition,
+		"FrontWingCondition": front_wing_condition,
+		"RearWingCondition": rear_wing_condition,
+		"Rpm": rpm,
+		"Gear": gear,
+		"MaxRpm": max_rpm,
+		"LapCount": lap_count,
+		"CurrentLap": current_lap.to_dict(),
+		"InPit": in_pit,
+		"TrackState": track_state,
+		"BrakeInput": brake_input,
+		"ThrottleInput": throttle_input,
+		"Name": name,
+		"Number": number
 	}

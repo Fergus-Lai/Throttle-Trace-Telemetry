@@ -67,16 +67,16 @@ func _to_string() -> String:
 
 func to_dict() -> Dictionary:
 	return {
-		"start_session_time": start_session_time,
-		"end_session_time": end_session_time,
-		"start_position_index": start_position_index,
-		"position_index": position_index,
-		"out_lap": out_lap,
-		"in_lap": in_lap,
-		"delta_to_leader": delta_to_leader,
-		"condition": condition,
-		"compound": compound,
-		"tire_condition": tire_condition,
-		"sector_times": sector_times,
-		"invalid": invalid,
+		"StartSessionTime": start_session_time,
+		"EndSessionTime": end_session_time,
+		"StartPositionIndex": start_position_index,
+		"PositionIndex": position_index,
+		"OutLap": out_lap,
+		"InLap": in_lap,
+		"DeltaToLeader": delta_to_leader,
+		"Condition": condition,
+		"Compound": compound,
+		"TireCondition": tire_condition,
+		"SectorTimes": sector_times,
+		"Invalid": invalid,
 	}
