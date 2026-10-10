@@ -31,6 +31,8 @@ var pixel_to_meter: float
 
 var _last_state = null
 var _session_has_started = false
+var _last_lap_count: int = -1
+var _last_sector_count: int = -1
 
 
 func _ready() -> void:
@@ -126,6 +128,28 @@ func _send_session_data() -> void:
 
 
 	var session_time = track_data.get("session_time")
+
+
+	# Add inside _send_session_data(), before _send_telemetry():
+	var player_laps: Array = player.get("laps")
+	var current_lap = player.get("current_lap")
+	var sector_times: Dictionary = current_lap.get("sector_times")
+
+	var lap_count := player_laps.size()
+	var sector_count := sector_times.size()
+
+	var is_new_lap := _last_lap_count >= 0 and lap_count > _last_lap_count
+	var is_new_sector := (
+		_last_sector_count >= 0
+		and lap_count == _last_lap_count
+		and sector_count > _last_sector_count
+	)
+
+	_last_lap_count = lap_count
+	_last_sector_count = sector_count
+
+	var fastest_lap = track_data.get("fastest_lap")
+
 	_send_telemetry(
 		{
 			"Version": 1,
@@ -138,8 +162,10 @@ func _send_session_data() -> void:
 			"NumberOfLaps": params.get("laps"),
 			"IsNewSession": is_new_session,
 			"JustGoneGreen": just_gone_green,
-			"TrackLength": track_length
-
+			"TrackLength": track_length,
+			"IsNewLap": is_new_lap,
+			"IsNewSector": is_new_sector,
+			"FastestLap": fastest_lap
 		}
 	)
 

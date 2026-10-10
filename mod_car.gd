@@ -29,10 +29,11 @@ extends Resource
 
 # Lap Data
 @export var current_lap: LapData
-@export var last_lap: LapData
-@export var lap_count: int
+@export var fastest_lap_index: int
+@export var laps: Array[LapData]
 @export var track_state: String
 @export var in_pit: bool
+@export var fastest_sector_times: Dictionary
 
 @export var position: int
 @export var track_position: int
@@ -70,14 +71,12 @@ static func from_car(car: Node, p: int, pps_to_kph: float, pixel_to_meter: float
 	data.gear = pu.get("current_gear") + 1
 	data.max_rpm = pu.get("rpm_maximum")
 
-	var laps: Array = car.get("laps")
-	data.lap_count = len(laps)
+	var lapData: Array = car.get("laps")
+	data.fastest_lap_index = car.get("fastest_lap_index")
+	data.laps = lapData.map(func(lap): return LapData.from_node(lap))
 	data.current_lap = LapData.from_node(car.get("current_lap"))
-	if len(laps) > 0:
-		data.last_lap = LapData.from_node(laps[-1])
-	var fastest_lap_index = car.get("fastest_lap_index")
-	if fastest_lap_index != null and len(laps) > fastest_lap_index:
-		data._fastest_lap = LapData.from_node(laps[fastest_lap_index])
+
+	data.fastest_sector_times = car.get("fastest_sector_times")
 
 	data.in_pit = car.get("is_in_pit_lane")
 	data.track_state = car.get("track_state")
@@ -104,7 +103,7 @@ func _to_string() -> String:
 		"  Engine:      Gears: %d | RPM: %.0f / %.0f\n" % [gear, rpm, max_rpm] +
 		"  Physics:     WheelSpin: %.2f | Traction: %.2f | SlipAngle: %.2f\n" % [wheel_spin, traction, slip_angle] +
 		"  Condition:   Car: %.1f%% | F-Wing: %.1f%% | R-Wing: %.1f%%\n" % [car_condition * 100, front_wing_condition * 100, rear_wing_condition * 100] +
-		"  Lap:         Lap Count: %.0f\n" % [lap_count] +
+		"  Lap:         Lap Count: %.0f\n" % [len(laps)] +
 		"  Track State: In Pit: %s | Track State: %s\n" % [in_pit_string, track_state] +
 		"  Input:       Throttle: %.0f% | Brake: %.0f%\n" % [throttle_input * 100, brake_input * 100] +
 		"  Current Lap: %s" % [current_lap._to_string()]
@@ -124,7 +123,6 @@ func to_dict() -> Dictionary:
 		"Rpm": rpm,
 		"Gear": gear,
 		"MaxRpm": max_rpm,
-		"LapCount": lap_count,
 		"CurrentLap": current_lap.to_dict(),
 		"InPit": in_pit,
 		"TrackState": track_state,
@@ -135,4 +133,7 @@ func to_dict() -> Dictionary:
 		"DistanceRoundTrack": distance_round_track,
 		"WorldPosition": [world_pos.x, world_pos.y, world_pos.z],
 		"Orientation": [orientation.x, orientation.y, orientation.z],
+		"Laps": laps.map(func(lap): lap.to_dict()),
+		"FastestLapIndex": fastest_lap_index,
+		"FastestSectorTimes": fastest_sector_times
 	}
