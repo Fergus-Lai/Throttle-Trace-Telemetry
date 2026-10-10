@@ -63,20 +63,7 @@ func _check_telemetry_ready_loop() -> void:
 		ModLoaderLog.debug("Not Race", LOG_NAME)
 		return
 		
-	_wait_for_session_start()
-
-func _wait_for_session_start() -> void:
-	session_state = track_data.get("state")
-
-	if session_state != SessionState.Active:
-		await get_tree().process_frame
-		_wait_for_session_start()
-		return
-		
-		
-	ModLoaderLog.info("Session Started", LOG_NAME)
 	_send_session_data()
-	return
 
 func _send_session_data() -> void:
 	if track_data == null:
@@ -91,17 +78,19 @@ func _send_session_data() -> void:
 
 	
 	var playerCar = CarData.from_car(player, pps_to_kph)
-	var cars_data: Dictionary[String, CarData] = {}
+	var cars_data: Dictionary[String, Dictionary] = {}
 	for car in cars:
 		var current_car = CarData.from_car(car, pps_to_kph)
-		cars_data[current_car.id] = current_car
+		cars_data[current_car.id] = current_car.to_dict()
 	_send_telemetry(
 		{
-			"playerId": playerCar.id,
-			"cars": cars_data,
+			"Version": 1,
+			"SessionType": "Race",
+			"SessionState": session_state,
+			"PlayerID": playerCar.id,
+			"Cars": cars_data,
 		}
 	)
-	ModLoaderLog.info(playerCar._to_string(), LOG_NAME)
 
 	await get_tree().process_frame
 	_send_session_data()

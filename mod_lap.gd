@@ -65,7 +65,7 @@ func _to_string() -> String:
 		flags_str
 	]
 
-func _to_dict() -> Dictionary:
+func to_dict() -> Dictionary:
 	return {
 		"start_session_time": start_session_time,
 		"end_session_time": end_session_time,
