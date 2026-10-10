@@ -72,7 +72,7 @@ func _send_session_data() -> void:
 		return
 		
 	session_state = track_data.get("state")
-	if session_state != SessionState.Active:
+	if session_state == SessionState.Finished:
 		ModLoaderLog.info("Session Ended", LOG_NAME)
 		return
 

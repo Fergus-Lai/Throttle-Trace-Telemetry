@@ -29,6 +29,7 @@ extends Resource
 
 # Lap Data
 @export var current_lap: LapData
+@export var last_lap: LapData
 @export var lap_count: int
 @export var lap_progress: float
 @export var track_state: String
@@ -60,6 +61,11 @@ static func from_car(car: Node, pps_to_kph: float) -> CarData:
 	var laps: Array = car.get("laps")
 	data.lap_count = len(laps)
 	data.current_lap = LapData.from_node(car.get("current_lap"))
+	if len(laps) > 0:
+		data.last_lap = LapData.from_node(laps[-1])
+	var fastest_lap_index = car.get("fastest_lap_index")
+	if fastest_lap_index != null and len(laps) > fastest_lap_index:
+		data._fastest_lap = LapData.from_node(laps[fastest_lap_index])
 
 	data.in_pit = car.get("is_in_pit_lane")
 	data.track_state = car.get("track_state")
