@@ -8,6 +8,14 @@ enum SessionState {
 	Finished
 }
 
+enum TrackState {
+	Prepare,
+	WaitingForHost,
+	Countdown,
+	Active,
+	Finished
+}
+
 
 const LOG_NAME := "TelemetryMod:Main"
 
@@ -29,10 +37,8 @@ var track_length: float
 var pps_to_kph: float
 var pixel_to_meter: float
 
-var _last_state = null
-var _session_has_started = false
-var _last_lap_count: int = -1
-var _last_sector_count: int = -1
+var _session_active := false
+var _session_id := ""
 
 
 func _ready() -> void:
@@ -94,61 +100,32 @@ func _send_session_data() -> void:
 		
 	var current_state = track_data.get("state")
 	var has_started = bool(track_data.get("has_session_started"))
-	var just_gone_green = (
-		_last_state == Track.State.Countdown and
-		current_state == Track.State.Active
-	)
+	var session_is_active = has_started and current_state != TrackState.Finished
+	if session_is_active and not _session_active:
+		_session_id = "%s-%s" % [str(Time.get_unix_time_from_system()), str(Time.get_ticks_usec())]
+	_session_active = session_is_active
 
-	if has_started and !_session_has_started:
-		_session_has_started = true
-
-	# clear edge after one tick if you want it to be single-shot
-	if current_state != Track.State.Active:
-		_last_state = current_state
-	else:
-		_last_state = current_state
-
-	var is_new_session = !has_started && !_session_has_started
-	if has_started:
-		is_new_session = false
-
-	
 	var cars_data: Dictionary[String, Dictionary] = {}
-	for i in ordered_cars.size():
-		var current_car = CarData.from_car(ordered_cars[i], i + 1, pps_to_kph, pixel_to_meter)
-		cars_data[current_car.id] = current_car.to_dict()
-
-	var track_positions = track_data.get("cars_sorted_by_track_position")
-	for i in track_positions.size():
-		var current_car = track_positions[i]
-		var car_in_dict = cars_data.get(current_car.id)
-		if car_in_dict != null and current_car != null:
-			car_in_dict.track_position = i + 1
-			cars_data.set(current_car.id, car_in_dict)
-
-
-	var session_time = track_data.get("session_time")
-
-
-	# Add inside _send_session_data(), before _send_telemetry():
-	var player_laps: Array = player.get("laps")
-	var current_lap = player.get("current_lap")
-	var sector_times: Dictionary = current_lap.get("sector_times")
-
-	var lap_count := player_laps.size()
-	var sector_count := sector_times.size()
-
-	var is_new_lap := _last_lap_count >= 0 and lap_count > _last_lap_count
-	var is_new_sector := (
-		_last_sector_count >= 0
-		and lap_count == _last_lap_count
-		and sector_count > _last_sector_count
-	)
-
-	_last_lap_count = lap_count
-	_last_sector_count = sector_count
-
+	var completed_laps := 0
+	var sector_number := 1
 	var fastest_lap = track_data.get("fastest_lap")
+
+	if has_started:
+		for i in ordered_cars.size():
+			var current_car = CarData.from_car(ordered_cars[i], i + 1, pps_to_kph, pixel_to_meter)
+			cars_data[current_car.id] = current_car.to_dict()
+
+		var raw_player_laps = player.get("laps")
+		var player_laps: Array = raw_player_laps if raw_player_laps is Array else []
+		var current_lap = player.get("current_lap")
+		var raw_sector_times = current_lap.get("sector_times") if current_lap != null else null
+		var sector_times: Dictionary = raw_sector_times if raw_sector_times is Dictionary else {}
+
+		completed_laps = player_laps.size()
+		sector_number = sector_times.size() + 1
+
+		
+	var session_time = track_data.get("session_time")
 
 	_send_telemetry(
 		{
@@ -156,20 +133,19 @@ func _send_session_data() -> void:
 			"SessionType": "Race",
 			"SessionState": current_state,
 			"PlayerID": player.id,
+			"SessionId": _session_id,
+			"CompletedLaps": completed_laps,
+			"SectorNumber": sector_number,
 			"Cars": cars_data,
 			"SessionTime": session_time,
 			"TrackName": track_name,
 			"NumberOfLaps": params.get("laps"),
-			"IsNewSession": is_new_session,
-			"JustGoneGreen": just_gone_green,
 			"TrackLength": track_length,
-			"IsNewLap": is_new_lap,
-			"IsNewSector": is_new_sector,
 			"FastestLap": fastest_lap
 		}
 	)
 
-	await get_tree().process_frame
+	await get_tree().create_timer(0.1).timeout
 	_send_session_data()
 	return
 

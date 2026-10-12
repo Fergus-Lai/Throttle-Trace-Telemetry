@@ -29,14 +29,13 @@ extends Resource
 
 # Lap Data
 @export var current_lap: LapData
-@export var fastest_lap_index: int
+@export var fastest_lap_index: int = -1
 @export var laps: Array[LapData]
 @export var track_state: String
 @export var in_pit: bool
 @export var fastest_sector_times: Dictionary
 
 @export var position: int
-@export var track_position: int
 
 @export var name: String
 @export var number: int
@@ -72,8 +71,10 @@ static func from_car(car: Node, p: int, pps_to_kph: float, pixel_to_meter: float
 	data.max_rpm = pu.get("rpm_maximum")
 
 	var lapData: Array = car.get("laps")
-	data.fastest_lap_index = car.get("fastest_lap_index")
-	data.laps = lapData.map(func(lap): return LapData.from_node(lap))
+	var fastest_lap_index_value = car.get("fastest_lap_index")
+	data.fastest_lap_index = int(fastest_lap_index_value) if fastest_lap_index_value != null else -1
+	for lap in lapData:
+		data.laps.append(LapData.from_node(lap))
 	data.current_lap = LapData.from_node(car.get("current_lap"))
 
 	data.fastest_sector_times = car.get("fastest_sector_times")
@@ -133,7 +134,8 @@ func to_dict() -> Dictionary:
 		"DistanceRoundTrack": distance_round_track,
 		"WorldPosition": [world_pos.x, world_pos.y, world_pos.z],
 		"Orientation": [orientation.x, orientation.y, orientation.z],
-		"Laps": laps.map(func(lap): lap.to_dict()),
+		"Laps": laps.map(func(lap): return lap.to_dict()),
 		"FastestLapIndex": fastest_lap_index,
-		"FastestSectorTimes": fastest_sector_times
+		"FastestSectorTimes": fastest_sector_times,
+		"Position": position
 	}
